@@ -5,12 +5,6 @@
 const int ledPin = 13;
 
 int leds[NUMLEDS][3] = {};
-int interval = 4;
-int offset = 0;
-int initialTimeDelay = 100;
-int timeDelay = initialTimeDelay;
-int timeDelayIncrement = 1;
-int minTimeDelay = 25;
 
 enum states {
   IDLE_STATE,         //Driving around, analog line 2 represents speed
