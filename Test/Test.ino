@@ -3,9 +3,12 @@
 #define NUMLEDS 16
 
 const int ledPin = 13;
-const int statePint = 0;
+const int statePin = 0;
 const int leftPin = 1;
 const int rightPin = 2;
+
+bool lowVoltage = false;
+const double lowVoltageBrightnessDrop = 5.0;
 
 int leds[NUMLEDS][3] = {};
 
@@ -20,6 +23,17 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMLEDS, ledPin, NEO_GRB + NEO_KHZ80
 void updateLEDs()
 {
   int i, j;
+
+  if(lowVoltage)
+  {
+    for(i=0; i<NUMLEDS; ++i)
+    {
+      for(j=0; j<3; ++j)
+      {
+        leds[i][j] = static_cast<int>(static_cast<double>(leds[i][j])/lowVoltageBrightnessDrop);
+      }
+    }
+  }
 
   for (i=0; i<NUMLEDS; ++i)
   {
@@ -87,7 +101,7 @@ void setup()
 
 void loop()
 {
-  int state_read = analogRead(state_Pin);
+  int state_read = analogRead(statePin);
   //Data read from RoboRIO goes here
   switch(state_read) {
     case 1:
@@ -96,6 +110,8 @@ void loop()
     case 2:
       state = SHOOTER_OFF_STATE;
       break;
+    case 3:
+      lowVoltage = true;
     default:
       state = IDLE_STATE;
       break;
