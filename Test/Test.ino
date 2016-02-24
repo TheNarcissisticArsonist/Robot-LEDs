@@ -113,6 +113,7 @@ void loop()
       break;
     case 3:
       lowVoltage = true;
+      break;
     default:
       state = IDLE_STATE;
       break;
