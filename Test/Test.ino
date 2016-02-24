@@ -20,10 +20,6 @@ void updateLEDs()
 
   for (i=0; i<NUMLEDS; ++i)
   {
-    for(j=0; j<3; ++j)
-    {
-      leds[i][j] = 0;
-    }
     strip.setPixelColor(i, leds[i][0], leds[i][1], leds[i][2]);
   }
   strip.show();
@@ -32,7 +28,13 @@ void updateLEDs()
 void setup()
 {
   int i, j;
-
+  for(i=0; i<NUMLEDS; ++i)
+  {
+    for(j=0; j<3; ++j)
+    {
+      leds[i][j] = 0;
+    }
+  }
   strip.begin();
   strip.show();
   updateLEDs();
@@ -42,4 +44,3 @@ void loop()
 {
 
 }
-
