@@ -3,6 +3,9 @@
 #define NUMLEDS 16
 
 const int ledPin = 13;
+const char statePin = "A0";
+const char leftPin = "A1";
+const char rightPin = "A2";
 
 int leds[NUMLEDS][3] = {};
 
@@ -24,6 +27,32 @@ void updateLEDs()
   }
   strip.show();
 }
+
+/*void strip_clear() {
+  for(int i=0; i < strip.numPixels(); i++) {
+    strip.setPixelColor(i, strip.Color(0, 0, 0));
+  }
+  strip.show();
+}
+
+void explosion() {
+  for (int i = 0; i<strip.numPixels(); i++) {
+    if (i < 12) {
+      strip.setPixelColor(i, strip.Color(255, 0, 0));
+      } else {
+      strip.setPixelColor(i, strip.Color(80, 80, 80));
+      }
+    }
+    strip.show();
+    delay(70);
+    strip_clear();
+    for (int i = 0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i, strip.Color(255, 255, 255));
+    }
+    strip.show();
+    delay(70);
+  }
+} some useful functions*/
 
 void idleState(double analog1, double analog2)
 {
@@ -51,25 +80,38 @@ void setup()
   strip.begin();
   strip.show();
   updateLEDs();
+  pinMode(statePin, INPUT);
+  pinMode(leftPin, INPUT);
+  pinMode(rightPin, INPUT);
 }
 
 void loop()
 {
-  int state = IDLE_STATE;
+  int state_read = analogRead(state_Pin);
   //Data read from RoboRIO goes here
-
+  switch(state_read) {
+    case 1:
+      state = SHOOTER_ON_STATE;
+      break;
+    case 2:
+      state = SHOOTER_OFF_STATE;
+      break;
+    default:
+      state = IDLE_STATE;
+      break;
+  }
 
   //State machine from here on out...
   if(state == IDLE_STATE)
   {
-    //
+    //analogRead from leftPin and rightPin for wheel speeds
   }
   else if(state == SHOOTER_ON_STATE)
   {
-    //
+    //analogRead from leftPin for shooter speeds
   }
   else if(state == SHOOTER_OFF_STATE)
   {
-    //
+    //analogRead from leftPin for shooter speeds
   }
 }
