@@ -101,9 +101,10 @@ void setup()
 
 void loop()
 {
-  int state_read = analogRead(statePin);
+  int state;
+  int stateRead = analogRead(statePin);
   //Data read from RoboRIO goes here
-  switch(state_read) {
+  switch(stateRead) {
     case 1:
       state = SHOOTER_ON_STATE;
       break;
