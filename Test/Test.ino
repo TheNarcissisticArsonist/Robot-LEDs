@@ -12,6 +12,9 @@ const double lowVoltageBrightnessDrop = 5.0;
 
 int leds[NUMLEDS][3] = {};
 
+long startTime;
+long currentTime;
+
 enum states {
   IDLE_STATE,         //Driving around, analog line 2 represents speed
   SHOOTER_ON_STATE,   //Shooter just got activated, pattern TBD. Analog line 2 could represent shooter wheel speed?
@@ -94,15 +97,24 @@ void setup()
   strip.begin();
   strip.show();
   updateLEDs();
+
   pinMode(statePin, INPUT);
   pinMode(leftPin, INPUT);
   pinMode(rightPin, INPUT);
+
+  startTime = millis();
 }
 
 void loop()
 {
   int state;
-  int stateRead = analogRead(statePin);
+  int stateRead;
+  long elapsedTime;
+
+  currentTime = millis();
+  elapsedTime = currentTime - startTime;
+
+  stateRead = analogRead(statePin);
   //Data read from RoboRIO goes here
   switch(stateRead) {
     case 1:
