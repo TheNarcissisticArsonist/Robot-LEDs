@@ -31,6 +31,19 @@ void updateLEDs()
   strip.show();
 }
 
+void idleState(double analog1, double analog2)
+{
+  //
+}
+void shooterOnState(double analog1)
+{
+  //
+}
+void shooterOffState(double analog1)
+{
+  //
+}
+
 void setup()
 {
   int i, j;
