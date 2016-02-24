@@ -18,8 +18,12 @@ void updateLEDs()
 {
   int i, j;
 
-  for (i = 0; i < NUMLEDS; ++i)
+  for (i=0; i<NUMLEDS; ++i)
   {
+    for(j=0; j<3; ++j)
+    {
+      leds[i][j] = 0;
+    }
     strip.setPixelColor(i, leds[i][0], leds[i][1], leds[i][2]);
   }
   strip.show();
@@ -36,34 +40,6 @@ void setup()
 
 void loop()
 {
-  int i;
 
-  for (i = 0; i < sizeof(leds) / sizeof(leds[0]); ++i)
-  {
-    if ((i + offset) % interval == 0)
-    {
-      leds[i][0] = 0;
-      leds[i][1] = 0;
-      leds[i][2] = 255;
-    }
-    else
-    {
-      leds[i][0] = 0;
-      leds[i][1] = 0;
-      leds[i][2] = 0;
-    }
-  }
-
-  ++offset;
-
-  updateLEDs();
-  delay(timeDelay);
-  if (timeDelay > minTimeDelay)
-  {
-    timeDelay -= timeDelayIncrement;
-  }
-  else {
-    timeDelay = minTimeDelay;
-  }
 }
 
