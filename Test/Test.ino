@@ -3,9 +3,9 @@
 #define NUMLEDS 16
 
 const int ledPin = 13;
-const char statePin = "A0";
-const char leftPin = "A1";
-const char rightPin = "A2";
+const int statePint = 0;
+const int leftPin = 1;
+const int rightPin = 2;
 
 int leds[NUMLEDS][3] = {};
 
