@@ -48,7 +48,7 @@ void setup()
 
 void loop()
 {
-  var state = IDLE_STATE;
+  int state = IDLE_STATE;
   //Data read from RoboRIO goes here
 
 
