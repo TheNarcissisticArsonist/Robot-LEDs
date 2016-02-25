@@ -15,6 +15,8 @@ long currentTime;
 long elapsedTime;
 bool flash = false;
 
+const int idleStateCycleTime = 2; //seconds for fade in/out
+
 int leds[NUMLEDS][3] = {};
 
 enum states {
@@ -101,7 +103,13 @@ void explode()
 
 void idleState()
 {
- //
+  int i;
+  for(i=0; i<NUMLEDS; ++i)
+  {
+    leds[i][0] = 0;
+    leds[i][1] = 0;
+    leds[i][2] = 255 //Later make this an actual function to fade and fade out.
+  }
 }
 void driveState(double analog1, double analog2)
 {
