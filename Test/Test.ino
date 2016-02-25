@@ -10,12 +10,17 @@ const int rightPin = 2;
 bool lowVoltage = false;
 const double lowVoltageBrightnessDrop = 5.0;
 
-int leds[NUMLEDS][3] = {};
-
 long startTime;
 long currentTime;
+long elapsedTime;
+bool flash = false;
+int state;
+int stateRead;
+
+int leds[NUMLEDS][3] = {};
 
 enum states {
+  OFF_MATCH_STATE,    //Before and after match, pattern TBD.
   IDLE_STATE,         //Driving around, analog line 2 represents speed
   SHOOTER_ON_STATE,   //Shooter just got activated, pattern TBD. Analog line 2 could represent shooter wheel speed?
   SHOOTER_OFF_STATE   //Shooter just got deactivated, pattern TBD. Analog line 2 could represent shooter wheel speed?
@@ -45,32 +50,52 @@ void updateLEDs()
   strip.show();
 }
 
-/*void stripClear() {
-  for(int i=0; i < strip.numPixels(); i++) {
+void stripClear()
+  {
+  for(int i=0; i < NUMLEDS; i++)
+  {
     strip.setPixelColor(i, strip.Color(0, 0, 0));
   }
   strip.show();
 }
 
-void explode() {
-  for (int i = 0; i<strip.numPixels(); i++) {
-    if (i < 12) {
-      strip.setPixelColor(i, strip.Color(255, 0, 0));
-      } else {
-      strip.setPixelColor(i, strip.Color(80, 80, 80));
+void explode()
+{
+  if(elapsedTime >= 70)
+  {
+    flash = !flash;
+    startTime = currentTime;
+  }
+  if (flash)
+  {
+    for(int i = 0; i < NUMLEDS; i++)
+    {
+      if(i < NUMLEDS * 3/4)
+      {
+        strip.setPixelColor(i % NUMLEDS, strip.Color(255, 0, 0));
+      }
+      else if (i <= NUMLEDS * 3/4 < NUMLEDS)
+      {
+        strip.setPixelColor(i % NUMLEDS, strip.Color(80, 80, 80));
       }
     }
     strip.show();
-    delay(70);
-    strip_clear();
-    for (int i = 0; i<strip.numPixels(); i++) {
+  }
+  else if (!flash)
+  {
+    stripClear();
+    for (int i = 0; i < NUMLEDS; i++)
+    {
       strip.setPixelColor(i, strip.Color(255, 255, 255));
     }
     strip.show();
-    delay(70);
   }
-} some useful functions*/
+}
 
+void offMatchState()
+{
+ // 
+}
 void idleState(double analog1, double analog2)
 {
   //
@@ -102,35 +127,32 @@ void setup()
   pinMode(leftPin, INPUT);
   pinMode(rightPin, INPUT);
 
-  startTime = millis();
 }
 
 void loop()
 {
-  int state;
-  int stateRead;
-  long elapsedTime;
-
+  
   currentTime = millis();
   elapsedTime = currentTime - startTime;
 
   stateRead = analogRead(statePin);
   //Data read from RoboRIO goes here
-  switch(stateRead) {
-    case 1:
-      state = SHOOTER_ON_STATE;
-      break;
-    case 2:
-      state = SHOOTER_OFF_STATE;
-      break;
-    case 3:
-      lowVoltage = true;
-      break;
-    default:
-      state = IDLE_STATE;
-      break;
+  if(0 <= stateRead < 255)
+  {
+    state = SHOOTER_ON_STATE;
   }
-
+  else if (255 <= stateRead < 510)
+  {
+    state = SHOOTER_OFF_STATE;
+  }
+  else if (510 <= stateRead < 765)
+  {
+    state = IDLE_STATE;
+  }
+  else if (765 <= stateRead <= 1023)
+  {
+    state = OFF_MATCH_STATE;
+  }
   //State machine from here on out...
   if(state == IDLE_STATE)
   {
@@ -143,5 +165,9 @@ void loop()
   else if(state == SHOOTER_OFF_STATE)
   {
     //analogRead from leftPin for shooter speeds
+  }
+  else if(state == OFF_MATCH_STATE)
+  {
+    //do preset pattern
   }
 }
