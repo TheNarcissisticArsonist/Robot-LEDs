@@ -11,10 +11,9 @@ bool lowVoltage = false;
 const double lowVoltageBrightnessDrop = 5.0;
 
 long startTime;
+long currentTime;
 long elapsedTime;
 bool flash = false;
-int state;
-int stateRead;
 
 int leds[NUMLEDS][3] = {};
 
@@ -132,8 +131,6 @@ void loop()
 {
   int state;
   int stateRead;
-  long currentTime;
-  long elapsedTime;
   
   currentTime = millis();
   elapsedTime = currentTime - startTime;
