@@ -10,8 +10,6 @@ const int rightPin = 2;
 bool lowVoltage = false;
 const double lowVoltageBrightnessDrop = 5.0;
 
-const int tick = 10; //100 per second
-
 long startTime;
 long currentTime;
 long elapsedTime;
@@ -142,11 +140,9 @@ void loop()
 {
   int state;
   int stateRead;
-  int tickTime;
 
   currentTime = millis();
   elapsedTime = currentTime - startTime;
-  tickTime = elapsedTime % tick;
 
   stateRead = analogRead(statePin);
 
