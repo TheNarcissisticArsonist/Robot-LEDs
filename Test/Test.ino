@@ -145,6 +145,7 @@ void loop()
   elapsedTime = currentTime - startTime;
 
   stateRead = analogRead(statePin);
+
   //Data read from RoboRIO goes here
   if(0 <= stateRead < 255)
   {
@@ -162,6 +163,8 @@ void loop()
   {
     state = IDLE_STATE;
   }
+
+  //state = _______ (for testing and demonstrations)
 
   //State machine from here on out...
   if(state == DRIVE_STATE)
