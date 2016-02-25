@@ -99,11 +99,11 @@ void explode()
   }
 }
 
-void offMatchState()
+void idleState()
 {
  //
 }
-void idleState(double analog1, double analog2)
+void driveState(double analog1, double analog2)
 {
   //
 }
