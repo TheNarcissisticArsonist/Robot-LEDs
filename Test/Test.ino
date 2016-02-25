@@ -18,8 +18,8 @@ bool flash = false;
 int leds[NUMLEDS][3] = {};
 
 enum states {
-  OFF_MATCH_STATE,    //Before and after match, pattern TBD.
-  IDLE_STATE,         //Driving around, analog line 2 represents speed
+  IDLE_STATE,         //Before and after match, pattern TBD
+  DRIVE_STATE,        //Driving around, analog line 2, 3 represent left and right tread speed. Tank tread pattern?
   SHOOTER_ON_STATE,   //Shooter just got activated, pattern TBD. Analog line 2 could represent shooter wheel speed?
   SHOOTER_OFF_STATE   //Shooter just got deactivated, pattern TBD. Analog line 2 could represent shooter wheel speed?
 };
@@ -156,15 +156,15 @@ void loop()
   }
   else if (510 <= stateRead < 765)
   {
-    state = IDLE_STATE;
+    state = DRIVE_STATE;
   }
   else if (765 <= stateRead <= 1023)
   {
-    state = OFF_MATCH_STATE;
+    state = IDLE_STATE;
   }
 
   //State machine from here on out...
-  if(state == IDLE_STATE)
+  if(state == DRIVE_STATE)
   {
     //analogRead from leftPin and rightPin for wheel speeds
   }
@@ -176,7 +176,7 @@ void loop()
   {
     //analogRead from leftPin for shooter speeds
   }
-  else if(state == OFF_MATCH_STATE)
+  else if(state == IDLE_STATE)
   {
     //do preset pattern
   }
