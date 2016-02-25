@@ -50,15 +50,20 @@ void updateLEDs()
 
 void stripClear()
 {
-  for(int i=0; i < NUMLEDS; i++)
+  int i, j;
+  for(int i=0; i<NUMLEDS; ++i)
   {
-    strip.setPixelColor(i, strip.Color(0, 0, 0));
+    for(j=0; j<3; ++j)
+    {
+      leds[i][j] = 0;
+    }
   }
-  strip.show();
+  updateLEDs();
 }
 
 void explode()
 {
+  int i, j;
   if(elapsedTime >= 70)
   {
     flash = !flash;
@@ -66,18 +71,22 @@ void explode()
   }
   if (flash)
   {
-    for(int i = 0; i < NUMLEDS; i++)
+    for(i=0; i<NUMLEDS; ++i)
     {
-      if(i < NUMLEDS * 3/4)
+      if(i < NUMLEDS*3.0/4.0)
       {
-        strip.setPixelColor(i % NUMLEDS, strip.Color(255, 0, 0));
+        leds[i%NUMLEDS][0] = 255;
+        leds[i%NUMLEDS][1] = 0;
+        leds[i%NUMLEDS][2] = 0;
       }
-      else if (i <= NUMLEDS * 3/4 < NUMLEDS)
+      else if (i <= NUMLEDS * 3.0/4.0 < NUMLEDS)
       {
-        strip.setPixelColor(i % NUMLEDS, strip.Color(80, 80, 80));
+        leds[i%NUMLEDS][0] = 80;
+        leds[i%NUMLEDS][1] = 80;
+        leds[i%NUMLEDS][2] = 80;
       }
     }
-    strip.show();
+    updateLEDs();
   }
   else if (!flash)
   {
@@ -153,6 +162,7 @@ void loop()
   {
     state = OFF_MATCH_STATE;
   }
+
   //State machine from here on out...
   if(state == IDLE_STATE)
   {
