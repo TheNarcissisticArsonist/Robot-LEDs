@@ -13,7 +13,6 @@ const double lowVoltageBrightnessDrop = 5.0;
 int leds[NUMLEDS][3] = {};
 
 long startTime;
-long currentTime;
 
 enum states {
   IDLE_STATE,         //Driving around, analog line 2 represents speed
@@ -109,6 +108,7 @@ void loop()
 {
   int state;
   int stateRead;
+  long currentTime;
   long elapsedTime;
 
   currentTime = millis();
