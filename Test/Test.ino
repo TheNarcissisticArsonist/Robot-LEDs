@@ -49,7 +49,7 @@ void updateLEDs()
 }
 
 void stripClear()
-  {
+{
   for(int i=0; i < NUMLEDS; i++)
   {
     strip.setPixelColor(i, strip.Color(0, 0, 0));
@@ -92,7 +92,7 @@ void explode()
 
 void offMatchState()
 {
- // 
+ //
 }
 void idleState(double analog1, double analog2)
 {
@@ -131,7 +131,7 @@ void loop()
 {
   int state;
   int stateRead;
-  
+
   currentTime = millis();
   elapsedTime = currentTime - startTime;
 
