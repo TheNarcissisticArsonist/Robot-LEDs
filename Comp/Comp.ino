@@ -19,7 +19,6 @@ int lastState;
 
 long startTime;
 long currentTime;
-long lastAction; //Last time the LEDs changed
 int timeSinceLastAction; //Used to define tick rate
 
 const double idleStatePeriodLength = 2.0; //Period as in waves -- the time it takes one cycle to pass in seconds
@@ -67,10 +66,12 @@ void updateLEDs() { //This is a general purpose function to make everything easi
     for(i=0; i<lNUMLEDS; ++i) {
       lStrip.setPixelColor(i, lLED[i][0], lLED[i][1], lLED[i][2]);
     }
-    for(j=0; j<rNUMLEDS; ++j) {
+    for(i=0; i<rNUMLEDS; ++i) {
       rStrip.setPixelColor(i, rLED[i][0], rLED[i][1], rLED[i][2]);
     }
   }
+  lStrip.show();
+  rStrip.show();
 }
 
 void clearStrips() { //Basically turn off the strips by setting all the leds to RGB [0, 0, 0]
@@ -91,7 +92,7 @@ void idleState(int timeSinceLastAction) {
     return;
   }
   int i, j;
-  double brightnessConstant = ((currentTime-periodStart)-1>0) ? (currentTime-periodStart)-1 : 1-(currentTime-periodStart);
+  double brightnessConstant = ((static_cast<double>(currentTime-periodStart)/1000.0)-1>0) ? (static_cast<double>(currentTime-periodStart)/1000.0)-1 : 1-(static_cast<double>(currentTime-periodStart)/1000.0);
   if(brightnessConstant > 1) {
     brightnessConstant = 1;
   }
@@ -100,16 +101,15 @@ void idleState(int timeSinceLastAction) {
   }
   for(j=0; j<3; ++j) {
     for(i=0; i<lNUMLEDS; ++i) {
-      lLED[i][j] = static_cast<int>(static_cast<double>(lLED[i][j])*brightnessConstant);
+      lLED[i][j] = static_cast<int>(static_cast<double>(idleStateColor[j]*brightnessConstant*0.25));
     }
-    for(j=0; j<rNUMLEDS; ++j) {
-      rLED[i][j] = static_cast<int>(static_cast<double>(rLED[i][j])*brightnessConstant);
+    for(i=0; i<rNUMLEDS; ++i) {
+      rLED[i][j] = static_cast<int>(static_cast<double>(idleStateColor[j]*brightnessConstant*0.25));
     }
   }
   if(currentTime-periodStart >= idleStatePeriodLength*1000) {
     periodStart = currentTime;
   }
-  lastAction = currentTime;
 }
 void driveState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
 void shooterOnState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
@@ -122,12 +122,13 @@ void setup() {
   rStrip.begin();
   clearStrips();
   startTime = millis(); //Get the start time (used later)
+  periodStart = startTime;
 }
 void loop() {
   int state, stateRead, analog1, analog2;
 
   currentTime = millis();
-  timeSinceLastAction = static_cast<int>(currentTime - lastAction);
+  timeSinceLastAction = static_cast<int>(currentTime - periodStart);
 
   stateRead = analogRead(statePin);
   if(200<stateRead && stateRead<=400) { //Shooter On State
@@ -174,4 +175,6 @@ void loop() {
       idleState(timeSinceLastAction);
       break;
   }
+
+  updateLEDs();
 }
