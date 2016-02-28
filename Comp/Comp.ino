@@ -23,8 +23,8 @@ long lastAction; //Last time the LEDs changed
 int timeSinceLastAction; //Used to define tick rate
 
 const double idleStatePeriodLength = 2.0; //Period as in waves -- the time it takes one cycle to pass in seconds
-const int idleStateColor[] = {0, 42, 255};
-const int idleStateTick = 10;
+const int idleStateColor[] = {0, 42, 255}; //Close to Columbia Blue
+const int idleStateTick = 10; //In milliseconds
 long periodStart;
 
 //2D arrays storing information about what the LED state is
@@ -106,7 +106,7 @@ void idleState(int timeSinceLastAction) {
       rLED[i][j] = static_cast<int>(static_cast<double>(rLED[i][j])*brightnessConstant);
     }
   }
-  if(currentTime-periodStart >= idleStatePeriodLength) {
+  if(currentTime-periodStart >= idleStatePeriodLength*1000) {
     periodStart = currentTime;
   }
 }
