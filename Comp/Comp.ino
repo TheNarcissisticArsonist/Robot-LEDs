@@ -15,6 +15,12 @@ const int rightPin = 2; //Used to get data from the RoboRIO (analog)
 //Drop the brightness if the robot starts to lose voltage
 bool lowVoltage = false;
 const double lowVoltageBrightnessDrop = 5.0;
+int lastState;
+
+long startTime;
+long currentTime;
+long lastAction;
+int timeSinceLastAction;
 
 //2D arrays storing information about what the LED state is
 //Instead of messing with commands in library, just update this array
@@ -82,12 +88,35 @@ void shooterOffState(double rawAnalog1, double rawAnalog2) {}
 
 
 void setup() {
+  //Start the strips, and then clear them
   lStrip.begin();
   rStrip.begin();
   clearStrips();
+  startTime = millis(); //Get the start time (used later)
 }
 void loop() {
   int state, stateRead;
 
+  currentTime = millis();
+  timeSinceLastAction = currentTime - lastAction;
 
+  stateRead = analogRead(statePin);
+  if(200<stateRead && stateRead<=400) { //Shooter On State
+    state = SHOOTER_ON_STATE;
+  }
+  else if(400<stateRead && stateRead<=600) { //Shooter Off State
+    state = SHOOTER_OFF_STATE;
+  }
+  else if(600<stateRead && stateRead<=800) { //Drive State
+    state = DRIVE_STATE;
+  }
+  else if(800<stateRead && stateRead<=1023) { //Flag Low Voltage
+    state = lastState;
+    lovVoltage = true;
+  }
+  else { //Idle State
+         //This will run if the input is 0 (i.e. the RoboRIO isn't sending any signal, like before and after a match)
+    state = IDLE_STATE;
+  }
+  lastState = state;
 }
