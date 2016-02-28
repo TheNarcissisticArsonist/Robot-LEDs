@@ -29,6 +29,8 @@ long periodStart;
 
 const int driveStateColor[] = {0, 42, 255};
 
+bool firstTime = true;
+
 //2D arrays storing information about what the LED state is
 //Instead of messing with commands in library, just update this array
 //and call updateLEDs() to display it on the strand
@@ -151,9 +153,11 @@ void loop() {
          //This will run if the input is 0 (i.e. the RoboRIO isn't sending any signal, like before and after a match)
     state = IDLE_STATE;
   }
+  firstTime = false;
   if(state != lastState)
   {
     periodStart = currentTime;
+    firstTime = true;
     clearStrips();
   }
   lastState = state; //Update last state (in case there's a low voltage message)
