@@ -19,8 +19,8 @@ int lastState;
 
 long startTime;
 long currentTime;
-long lastAction;
-int timeSinceLastAction;
+long lastAction; //Last time the LEDs changed
+int timeSinceLastAction; //Used to define tick rate
 
 //2D arrays storing information about what the LED state is
 //Instead of messing with commands in library, just update this array
@@ -111,19 +111,19 @@ void loop() {
     state = DRIVE_STATE;
   }
   else if(800<stateRead && stateRead<=1023) { //Flag Low Voltage
-    state = lastState;
+    state = lastState; //The low voltage alert doesn't explain what state it should be, so revert back to the previous state
     lowVoltage = true;
   }
   else { //Idle State
          //This will run if the input is 0 (i.e. the RoboRIO isn't sending any signal, like before and after a match)
     state = IDLE_STATE;
   }
-  lastState = state;
+  lastState = state; //Update last state (in case there's a low voltage message)
 
-  analog1 = analogRead(analogPin1);
+  analog1 = analogRead(analogPin1); //Get analog values from RoboRIO
   analog2 = analogRead(analogPin2);
 
-  switch(state) {
+  switch(state) { //Run the appropriate state display function
     case IDLE_STATE:
       idleState(timeSinceLastAction);
       break;
