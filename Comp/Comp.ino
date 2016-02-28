@@ -9,8 +9,8 @@
 const int lLedPin = 13; //Left side leds
 const int rLedPin = 12; //Right side leds
 const int statePin = 0; //Used to get state from the RoboRIO (analog)
-const int leftPin = 1; //Used to get data from the RoboRIO (analog)
-const int rightPin = 2; //Used to get data from the RoboRIO (analog)
+const int analogPin1 = 1; //Used to get data from the RoboRIO (analog)
+const int analogPin2 = 2; //Used to get data from the RoboRIO (analog)
 
 //Drop the brightness if the robot starts to lose voltage
 bool lowVoltage = false;
@@ -81,10 +81,10 @@ void clearStrips() { //Basically turn off the strips by setting all the leds to 
   updateLEDs();
 }
 
-void idleState() {}
-void driveState(double rawAnalog1, double rawAnalog2) {}
-void shooterOnState(double rawAnalog1, double rawAnalog2) {}
-void shooterOffState(double rawAnalog1, double rawAnalog2) {}
+void idleState(int timeSinceLastAction) {}
+void driveState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
+void shooterOnState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
+void shooterOffState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
 
 
 void setup() {
@@ -95,7 +95,7 @@ void setup() {
   startTime = millis(); //Get the start time (used later)
 }
 void loop() {
-  int state, stateRead;
+  int state, stateRead, analog1, analog2;
 
   currentTime = millis();
   timeSinceLastAction = currentTime - lastAction;
@@ -112,11 +112,32 @@ void loop() {
   }
   else if(800<stateRead && stateRead<=1023) { //Flag Low Voltage
     state = lastState;
-    lovVoltage = true;
+    lowVoltage = true;
   }
   else { //Idle State
          //This will run if the input is 0 (i.e. the RoboRIO isn't sending any signal, like before and after a match)
     state = IDLE_STATE;
   }
   lastState = state;
+
+  analog1 = analogRead(analogPin1);
+  analog2 = analogRead(analogPin2);
+
+  switch(state) {
+    case IDLE_STATE:
+      idleState(timeSinceLastAction);
+      break;
+    case DRIVE_STATE:
+      driveState(timeSinceLastAction, analog1, analog2);
+      break;
+    case SHOOTER_ON_STATE:
+      shooterOnState(timeSinceLastAction, analog1, analog2);
+      break;
+    case SHOOTER_OFF_STATE:
+      shooterOffState(timeSinceLastAction, analog1, analog2);
+      break;
+    default:
+      idleState(timeSinceLastAction);
+      break;
+  }
 }
