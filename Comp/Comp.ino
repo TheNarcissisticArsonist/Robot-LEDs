@@ -3,8 +3,8 @@
 
 //Used throughout the program to reference the number of LEDS on the strand
 //This is completely modular -- any number works
-#define lNUMLEDS 16
-#define rNUMLEDS 16
+#define lNUMLEDS 80
+#define rNUMLEDS 80
 
 const int lLedPin = 13; //Left side leds
 const int rLedPin = 12; //Right side leds
@@ -72,6 +72,7 @@ void clearStrips() { //Basically turn off the strips by setting all the leds to 
       rLED[i][j] = 0;
     }
   } //Ordering it like this should make it slightly faster, which doesn't hurt anything
+  updateLEDs();
 }
 
 void idleState() {}
@@ -80,5 +81,13 @@ void shooterOnState(double rawAnalog1, double rawAnalog2) {}
 void shooterOffState(double rawAnalog1, double rawAnalog2) {}
 
 
-void setup() {}
-void loop() {}
+void setup() {
+  lStrip.begin();
+  rStrip.begin();
+  clearStrips();
+}
+void loop() {
+  int state, stateRead;
+
+
+}
