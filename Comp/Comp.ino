@@ -22,6 +22,11 @@ long currentTime;
 long lastAction; //Last time the LEDs changed
 int timeSinceLastAction; //Used to define tick rate
 
+const double idleStatePeriodLength = 2.0; //Period as in waves -- the time it takes one cycle to pass in seconds
+const int idleStateColor[] = {0, 42, 255};
+const int idleStateTick = 10;
+long periodStart;
+
 //2D arrays storing information about what the LED state is
 //Instead of messing with commands in library, just update this array
 //and call updateLEDs() to display it on the strand
@@ -81,7 +86,30 @@ void clearStrips() { //Basically turn off the strips by setting all the leds to 
   updateLEDs();
 }
 
-void idleState(int timeSinceLastAction) {}
+void idleState(int timeSinceLastAction) {
+  if(timeSinceLastAction<idleStateTick) { //Only update this every so often
+    return;
+  }
+  int i, j;
+  double brightnessConstant = ((currentTime-periodStart)-1>0) ? (currentTime-periodStart)-1 : 1-(currentTime-periodStart);
+  if(brightnessConstant > 1) {
+    brightnessConstant = 1;
+  }
+  else if(brightnessConstant < 0) {
+    brightnessConstant = 0;
+  }
+  for(j=0; j<3; ++j) {
+    for(i=0; i<lNUMLEDS; ++i) {
+      lLED[i][j] = static_cast<int>(static_cast<double>(lLED[i][j])*brightnessConstant);
+    }
+    for(j=0; j<rNUMLEDS; ++j) {
+      rLED[i][j] = static_cast<int>(static_cast<double>(rLED[i][j])*brightnessConstant);
+    }
+  }
+  if(currentTime-periodStart >= idleStatePeriodLength) {
+    periodStart = currentTime;
+  }
+}
 void driveState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
 void shooterOnState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
 void shooterOffState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
@@ -98,7 +126,7 @@ void loop() {
   int state, stateRead, analog1, analog2;
 
   currentTime = millis();
-  timeSinceLastAction = currentTime - lastAction;
+  timeSinceLastAction = static_cast<int>(currentTime - lastAction);
 
   stateRead = analogRead(statePin);
   if(200<stateRead && stateRead<=400) { //Shooter On State
@@ -117,6 +145,10 @@ void loop() {
   else { //Idle State
          //This will run if the input is 0 (i.e. the RoboRIO isn't sending any signal, like before and after a match)
     state = IDLE_STATE;
+  }
+  if(state != lastState)
+  {
+    periodStart = currentTime;
   }
   lastState = state; //Update last state (in case there's a low voltage message)
 
