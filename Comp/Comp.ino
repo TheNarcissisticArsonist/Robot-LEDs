@@ -27,6 +27,8 @@ const int idleStateTick = 10; //In milliseconds
 const double idleStateMaxBrightness = 0.25; //Arbitrary
 long periodStart;
 
+const int driveStateColor[] = {0, 42, 255};
+
 //2D arrays storing information about what the LED state is
 //Instead of messing with commands in library, just update this array
 //and call updateLEDs() to display it on the strand
@@ -109,7 +111,7 @@ void idleState(int timeSinceLastAction) {
     }
   }
   if(currentTime-periodStart >= idleStatePeriodLength*1000) {
-    periodStart = currentTime;
+    periodStart += idleStatePeriodLength*1000;
   }
 }
 void driveState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
