@@ -109,6 +109,7 @@ void idleState(int timeSinceLastAction) {
   if(currentTime-periodStart >= idleStatePeriodLength*1000) {
     periodStart = currentTime;
   }
+  lastAction = currentTime;
 }
 void driveState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
 void shooterOnState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
@@ -149,6 +150,7 @@ void loop() {
   if(state != lastState)
   {
     periodStart = currentTime;
+    clearStrips();
   }
   lastState = state; //Update last state (in case there's a low voltage message)
 
