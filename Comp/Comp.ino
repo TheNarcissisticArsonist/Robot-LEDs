@@ -34,23 +34,25 @@ enum states {
 Adafruit_NeoPixel lStrip = Adafruit_NeoPixel(lNUMLEDS, lLedPin, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel rStrip = Adafruit_NeoPixel(rNUMLEDS, rLedPin, NEO_GRB + NEO_KHZ800);
 
-void updateLEDs() {
+void updateLEDs() { //This is a general purpose function to make everything easier. Instead of
+                    //having to deal with the library's functions, I can do everything throughout
+                    //the arrays I defined above, and then just update when necessary.
   int i, j;
-  if(lowVoltage) {
-    for(i=0; i<lNUMLEDS; ++i) {
+  if(lowVoltage) { //If the robot battery has low voltage, drop the brightness to save power
+    for(i=0; i<lNUMLEDS; ++i) { //For each of the leds on the left side
       for(j=0; j<3; ++j) {
-        lLED[i][j] = static_cast<int>(static_cast<double>(lLED[i][j])/lowVoltageBrightnessDrop);
+        lLED[i][j] = static_cast<int>(static_cast<double>(lLED[i][j])/lowVoltageBrightnessDrop); //The static_casts probably aren't necessary, but I want to make sure the types are correct
       }
-      lStrip.setPixelColor(i, lLED[i][0], lLED[i][1], lLED[i][2]);
+      lStrip.setPixelColor(i, lLED[i][0], lLED[i][1], lLED[i][2]); //Update the left strand pixels
     }
-    for(i=0; i<rNUMLEDS; ++i) {
+    for(i=0; i<rNUMLEDS; ++i) { //For each of the leds on the right side
       for(j=0; j<3; ++j) {
-        rLED[i][j] = static_cast<int>(static_cast<double>(rLED[i][j])/lowVoltageBrightnessDrop);
+        rLED[i][j] = static_cast<int>(static_cast<double>(rLED[i][j])/lowVoltageBrightnessDrop); //The static_casts probably aren't necessary, but I want to make sure the types are correct
       }
-      rStrip.setPixelColor(i, rLED[i][0], rLED[i][1], rLED[i][2]);
+      rStrip.setPixelColor(i, rLED[i][0], rLED[i][1], rLED[i][2]); //Update the right strand pixels
     }
   }
-  else {
+  else { //If voltage isn't low, FULL BRIGHTNESS :O
     for(i=0; i<lNUMLEDS; ++i) {
       lStrip.setPixelColor(i, lLED[i][0], lLED[i][1], lLED[i][2]);
     }
@@ -59,6 +61,24 @@ void updateLEDs() {
     }
   }
 }
+
+void clearStrips() { //Basically turn off the strips by setting all the leds to RGB [0, 0, 0]
+  int i, j;
+  for(j=0; j<3; ++j) { //For the R value, then the G value, then the B value
+    for(i=0; i<lNUMLEDS; ++i) { //For all leds on the left
+      lLED[i][j] = 0;
+    }
+    for(i=0; i<rNUMLEDS; ++i) { //For all leds on the right
+      rLED[i][j] = 0;
+    }
+  } //Ordering it like this should make it slightly faster, which doesn't hurt anything
+}
+
+void idleState() {}
+void driveState(double rawAnalog1, double rawAnalog2) {}
+void shooterOnState(double rawAnalog1, double rawAnalog2) {}
+void shooterOffState(double rawAnalog1, double rawAnalog2) {}
+
 
 void setup() {}
 void loop() {}
