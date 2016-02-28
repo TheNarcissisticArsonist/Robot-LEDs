@@ -6,6 +6,12 @@
 #define lNUMLEDS 80
 #define rNUMLEDS 80
 
+//This is the wheel diameter of the robot's main drive wheels
+#define WHEEL_DIAMETER 6
+
+//Distance between two leds. Please keep this constant. Pretty please?
+#define LED_PITCH 0.6875
+
 const int lLedPin = 13; //Left side leds
 const int rLedPin = 12; //Right side leds
 const int statePin = 0; //Used to get state from the RoboRIO (analog)
@@ -28,6 +34,9 @@ const double idleStateMaxBrightness = 0.25; //Arbitrary
 long periodStart;
 
 const int driveStateColor[] = {0, 42, 255};
+const int driveModeSpacing = 4;
+int lIndex;
+int rIndex;
 
 bool firstTime = true;
 
@@ -116,7 +125,63 @@ void idleState(int timeSinceLastAction) {
     periodStart += idleStatePeriodLength*1000;
   }
 }
-void driveState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
+void driveState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) { //Analog1 is left, analog2 is right
+  int i, j;
+  if(firstTime) {
+    lIndex = 0;
+    rIndex = 0;
+    for(j=0; j<3; ++j) {
+      for(i=0; i<lNUMLEDS; ++i) {
+        if(i % driveModeSpacing == 0) {
+          lLED[i][j] = driveStateColor[j];
+        }
+        else {
+          lLED[i][j] = 0;
+        }
+      }
+      for(i=0; i<rNUMLEDS; ++i) {
+        if(i % driveModeSpacing == 0) {
+          rLED[i][j] = driveStateColor[j];
+        }
+        else {
+          rLED[i][j] = 0;
+        }
+      }
+    }
+  }
+
+  double lRPM = 60; //Include a function to get from rawAnalog1 soontm
+  double rRPM = 60; //These are in RPM
+  double lIPS = 2 * 3.14159265358979 * WHEEL_DIAMETER * lRPM; //These are in inches per second
+  double rIPS = 2 * 3.14159265358979 * WHEEL_DIAMETER * rRPM; //.6975 in between each led
+  double lLPS = lIPS/LED_PITCH; //These are in leds per second
+  double rLPS = rIPS/LED_PITCH;
+  double lShiftFactor = lLPS * timeSinceLastAction; //These are in leds
+  double rShiftFactor = lLPS * timeSinceLastAction;
+  if((lShiftFactor > 1 || lShiftFactor < -1) && (rShiftFactor > 1 || rShiftFactor < -1)) {
+    periodStart = currentTime;
+    lIndex += static_cast<int>(lShiftFactor);
+    rIndex += static_cast<int>(rShiftFactor);
+    for(j=0; j<3; ++j) {
+      for(i=0; i<lNUMLEDS; ++i) {
+        if((i % driveModeSpacing)+lIndex == 0) {
+          lLED[i][j] = driveStateColor[j];
+        }
+        else {
+          lLED[i][j] = 0;
+        }
+      }
+      for(i=0; i<rNUMLEDS; ++i) {
+        if((i % driveModeSpacing)+rIndex == 0) {
+          rLED[i][j] = driveStateColor[j];
+        }
+        else {
+          rLED[i][j] = 0;
+        }
+      }
+    }
+  }
+}
 void shooterOnState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
 void shooterOffState(int timeSinceLastAction, double rawAnalog1, double rawAnalog2) {}
 
@@ -127,13 +192,13 @@ void setup() {
   rStrip.begin();
   clearStrips();
   startTime = millis(); //Get the start time (used later)
+  currentTime = startTime;
   periodStart = startTime;
 }
 void loop() {
   int state, stateRead, analog1, analog2;
 
   currentTime = millis();
-  timeSinceLastAction = static_cast<int>(currentTime - periodStart);
 
   stateRead = analogRead(statePin);
   if(200<stateRead && stateRead<=400) { //Shooter On State
@@ -144,6 +209,7 @@ void loop() {
   }
   else if(600<stateRead && stateRead<=800) { //Drive State
     state = DRIVE_STATE;
+    timeSinceLastAction = static_cast<int>(currentTime-periodStart);
   }
   else if(800<stateRead && stateRead<=1023) { //Flag Low Voltage
     state = lastState; //The low voltage alert doesn't explain what state it should be, so revert back to the previous state
@@ -152,6 +218,7 @@ void loop() {
   else { //Idle State
          //This will run if the input is 0 (i.e. the RoboRIO isn't sending any signal, like before and after a match)
     state = IDLE_STATE;
+    timeSinceLastAction = static_cast<int>(currentTime - periodStart);
   }
   firstTime = false;
   if(state != lastState)
