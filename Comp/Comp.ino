@@ -173,22 +173,17 @@ void loop() {
   dT = currentTime - lastTime;
 
   //Read the state and set up stuff
-  if(dataFromRoboRIO[0] != 1) {
-    state = IDLE_STATE;
-  }
-  else if(dataFromRoboRIO[1] == 2) {
+  if(dataFromRoboRIO[1] == 2) {
     state = OFF_STATE;
   }
+  else if(dataFromRoboRIO[0] != 1) {
+    state = IDLE_STATE;
+  }
+  else if(dataFromRoboRIO[4] > 10) {
+    state = SHOOTING_STATE;
+  }
   else {
-    if(dataFromRoboRIO[4] > 10) {
-      state = SHOOTING_STATE;
-    }
-    else if(dataFromRoboRIO[1] == 2) {
-      state = OFF_STATE;
-    }
-    else {
-      state = DRIVE_STATE;
-    }
+    state = DRIVE_STATE;
   }
   if(dataFromRoboRIO[1] > 0) {
     lowVoltage = true;
