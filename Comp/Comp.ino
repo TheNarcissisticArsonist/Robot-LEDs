@@ -92,34 +92,18 @@ void clearStrips() { //Basically turn off the strips by setting all the leds to 
   updateLEDs();
 }
 
-void idleState(int timeSinceLastAction) {
-  if(timeSinceLastAction<idleStateTick) { //Only update this every so often
-    return;
-  }
-  int i, j;
-  double brightnessConstant = ((static_cast<double>(currentTime-periodStart)/1000.0)-1>0) ? (static_cast<double>(currentTime-periodStart)/1000.0)-1 : 1-(static_cast<double>(currentTime-periodStart)/1000.0);
-  if(brightnessConstant > 1) {
-    brightnessConstant = 1;
-  }
-  else if(brightnessConstant < 0) {
-    brightnessConstant = 0;
-  }
-  for(j=0; j<3; ++j) {
-    for(i=0; i<lNUMLEDS; ++i) {
-      lLED[i][j] = static_cast<int>(static_cast<double>(idleStateColor[j]*brightnessConstant*idleStateMaxBrightness));
-    }
-    for(i=0; i<rNUMLEDS; ++i) {
-      rLED[i][j] = static_cast<int>(static_cast<double>(idleStateColor[j]*brightnessConstant*idleStateMaxBrightness));
-    }
-  }
-  if(currentTime-periodStart >= idleStatePeriodLength*1000) {
-    periodStart += idleStatePeriodLength*1000;
-  }
-}
+void idleState() {}
 void driveState() {}
 void shooterOnState() {}
 void shooterOffState() {}
 
-void setup() {}
+void setup() {
+  lStrip.begin(); //Start the left and right led strips
+  rStrip.begin();
+  clearStrips(); //Make them blank
+
+  startTime = millis();
+  currentTime = startTime;
+}
 
 void loop() {}
