@@ -1,0 +1,5 @@
+A -- State (0, 1)
+B -- Low Voltage (0, 1)
+C -- Left Wheel Speed (0 to 255)
+D -- Right Wheel Speed (0 to 255)
+E -- Shooter Wheel Speed (0 to 255)

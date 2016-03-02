@@ -43,8 +43,7 @@ int rLED[rNUMLEDS][3] = {};
 enum states {
   IDLE_STATE,       //Do this before and after the match (detect when voltage is less than some constant)
   DRIVE_STATE,      //Do this while the robot is driving around
-  SHOOTER_ON_STATE, //Do this once the shooter gets turned on
-  SHOOTER_OFF_STATE //do this when the shooter gets turned off
+  SHOOTING          //Do this when the wheel is active
 };
 
 //Initialize the two Adafruit_NeoPixel objects, one for each side
@@ -52,7 +51,7 @@ Adafruit_NeoPixel lStrip = Adafruit_NeoPixel(lNUMLEDS, LEFT_LED_PIN, NEO_GRB + N
 Adafruit_NeoPixel rStrip = Adafruit_NeoPixel(rNUMLEDS, RIGHT_LED_PIN, NEO_GRB + NEO_KHZ800);
 
 //Number of bytes received from RoboRIO
-#define SIGNAL_LENGTH 10
+#define SIGNAL_LENGTH 5
 
 //Bytes from RoboRIO are stored here
 char dataFromRoboRIO[SIGNAL_LENGTH];
