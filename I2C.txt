@@ -1,4 +1,4 @@
-A -- Active (1)
+A -- Active (0, 1)
 B -- Low Voltage (0, 1, 2)
 C -- Left Wheel Speed (0 to 255)
 D -- Right Wheel Speed (0 to 255)

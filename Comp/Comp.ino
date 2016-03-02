@@ -60,9 +60,6 @@ Adafruit_NeoPixel rStrip = Adafruit_NeoPixel(rNUMLEDS, RIGHT_LED_PIN, NEO_GRB + 
 //Bytes from RoboRIO are stored here
 char dataFromRoboRIO[SIGNAL_LENGTH];
 
-//Analog pin to test if the robot is on
-#define IDLE_ANALOG 5
-
 void updateLEDs() { //This is a general purpose function to make everything easier. Instead of
                     //having to deal with the library's functions, I can do everything throughout
                     //the arrays I defined above, and then just update when necessary.
@@ -139,31 +136,24 @@ void setup() {
 
 void loop() {
   //Declare variables
-  int idleAnalogRead;
   int state;
 
   //Deal with time stuff
 
 
   //Read the state and set up stuff
-  idleAnalogRead = analogRead(IDLE_ANALOG);
-  if(idleAnalogRead < 255) {
+  if(dataFromRoboRIO[0] != 1) {
     state = IDLE_STATE;
   }
   else {
-    if(dataFromRoboRIO[0] != 1) {
-      state = IDLE_STATE;
+    if(dataFromRoboRIO[4] > 10) {
+      state = SHOOTING_STATE;
+    }
+    else if(dataFromRoboRIO[1] == 2) {
+      state = OFF_STATE;
     }
     else {
-      if(dataFromRoboRIO[4] > 10) {
-        state = SHOOTING_STATE;
-      }
-      else if(dataFromRoboRIO[1] == 2) {
-        state = OFF_STATE;
-      }
-      else {
-        state = DRIVE_STATE;
-      }
+      state = DRIVE_STATE;
     }
   }
   if(dataFromRoboRIO[1] == 1) {
