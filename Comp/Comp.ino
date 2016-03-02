@@ -22,6 +22,9 @@
 //I2C address
 #define I2C_ADDRESS 8
 
+long startTime;
+long currentTime;
+
 //Used for low voltage problems with the robots
 bool lowVoltage = false;
 const double lowVoltageBrightnessDrop = 5.0;
@@ -43,7 +46,8 @@ int rLED[rNUMLEDS][3] = {};
 enum states {
   IDLE_STATE,       //Do this before and after the match (detect when voltage is less than some constant)
   DRIVE_STATE,      //Do this while the robot is driving around
-  SHOOTING          //Do this when the wheel is active
+  SHOOTING_STATE,   //Do this when the wheel is active
+  OFF_STATE         //If there's critically low battery, shut it down
 };
 
 //Initialize the two Adafruit_NeoPixel objects, one for each side
@@ -116,6 +120,8 @@ void decodeI2C(int numBytes) {
 }
 
 void setup() {
+  int i;
+
   lStrip.begin(); //Start the left and right led strips
   rStrip.begin();
   clearStrips(); //Make them blank
@@ -125,6 +131,45 @@ void setup() {
 
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(decodeI2C);
+
+  for(i=0; i<SIGNAL_LENGTH; ++i) {
+    dataFromRoboRIO[i] = 0;
+  }
 }
 
-void loop() {}
+void loop() {
+  //Declare variables
+  int idleAnalogRead;
+  int state;
+
+  //Deal with time stuff
+
+
+  //Read the state and set up stuff
+  idleAnalogRead = analogRead(IDLE_ANALOG);
+  if(idleAnalogRead < 255) {
+    state = IDLE_STATE;
+  }
+  else {
+    if(dataFromRoboRIO[0] != 1) {
+      state = IDLE_STATE;
+    }
+    else {
+      if(dataFromRoboRIO[4] > 10) {
+        state = SHOOTING_STATE;
+      }
+      else if(dataFromRoboRIO[1] == 2) {
+        state = OFF_STATE;
+      }
+      else {
+        state = DRIVE_STATE;
+      }
+    }
+  }
+  if(dataFromRoboRIO[1] == 1) {
+    lowVoltage = true;
+  }
+
+  //Call the proper function(s)
+
+}
