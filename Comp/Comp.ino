@@ -36,7 +36,7 @@ const double lowVoltageBrightnessDrop = 5.0;
 const int idleStateColor[] = {0, 42, 255}; //Columbia Blue (about)
 double currentBrightnessConstant = 1.0; //0 to 1
 const double brightnessIncreasingMultiplicativeFactor = 1.01; //Determines the speed at which it gets brighter/dimmer
-const double minBrightnessConstant = 0.01;
+const double minBrightnessConstant = 0.02;
 bool increasing;
 
 const int driveStateColor[] = {0, 42, 255}; //More or less Columbia Blue
