@@ -201,6 +201,7 @@ void loop() {
 
   //Call the proper function(s)
   if(dT > minTickTime) {
+    lastTime = currentTime;
     if(state != OFF_STATE) {
       switch(state) {
         case IDLE_STATE:
