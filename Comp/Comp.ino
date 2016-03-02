@@ -141,8 +141,39 @@ void idleState(int dT) {
 }
 void driveState(int dT) {
   int i, j;
+  for(j=0; j<3; ++j) {
+    for(i=0; i<lNUMLEDS; i=i+4) {
+      lLED[i][j] = driveStateColor[j];
+    }
+    for(i=0; i<rNUMLEDS; i=i+4) {
+      rLED[i][j] = driveStateColor[j];
+    }
+  }
   leftShiftFactor = (dataFromRoboRIO[4]-1)*(static_cast<int>(leftShiftConstant * dataFromRoboRIO[2]) % driveModeSpacing);
   rightShiftFactor = (dataFromRoboRIO[5]-1)*(static_cast<int>(rightShiftConstant * dataFromRoboRIO[3]) % driveModeSpacing);
+  int lBackup[leftShiftFactor][3];
+  int rBackup[rightShiftFactor][3];
+  for(j=0; j<3; ++j) {
+    for(i=(lNUMLEDS-1)-leftShiftFactor; i<lNUMLEDS-1; ++i) {
+      lBackup[i+1-lNUMLEDS][j] = lLED[i][j];
+    }
+    for(i=(rNUMLEDS-1)-rightShiftFactor; i<rNUMLEDS-1; ++i) {
+      rBackup[i+1-rNUMLEDS][j] = rLED[i][j];
+    }
+    for(i=lNUMLEDS-1; i>leftShiftFactor; --i) {
+      lLED[i][j] = lLED[i-leftShiftFactor][j];
+    }
+    for(i=rNUMLEDS-1; i>rightShiftFactor; --i) {
+      rLED[i][j] = rLED[i-rightShiftFactor][j];
+    }
+    for(i=0; i<leftShiftFactor; ++i) {
+      lLED[i][j] = lBackup[i][j];
+    }
+    for(i=0; i<rightShiftFactor; ++i) {
+      rLED[i][j] = rBackup[i][j];
+    }
+  }
+  updateLEDs();
 }
 void shootingState(int dT) {}
 
