@@ -107,10 +107,9 @@ void clearStrips() { //Basically turn off the strips by setting all the leds to 
   updateLEDs();
 }
 
-void idleState() {}
-void driveState() {}
-void shooterOnState() {}
-void shooterOffState() {}
+void idleState(int dT) {}
+void driveState(int dT) {}
+void shootingState(int dT) {}
 
 void decodeI2C(int numBytes) {
   int i = 0;
@@ -175,6 +174,18 @@ void loop() {
 
   //Call the proper function(s)
   if(dT > minTickTime) {
-    
+    if(state != OFF_STATE) {
+      switch(state) {
+        case IDLE_STATE:
+          idleState(dT);
+          break;
+        case DRIVE_STATE:
+          driveState(dT);
+          break;
+        case SHOOTING_STATE:
+          shootingState(dT);
+          break;
+      }
+    }
   }
 }
