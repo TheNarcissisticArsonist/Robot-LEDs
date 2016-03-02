@@ -27,17 +27,16 @@ long startTime;
 long currentTime;
 long lastTime;
 
-const int minTickTime = 10; //milliseconds. If dT is less than this, nothing happens
+const int minTickTime = 1; //milliseconds. If dT is less than this, nothing happens
 
 //Used for low voltage problems with the robots
 bool lowVoltage = false;
 const double lowVoltageBrightnessDrop = 5.0;
 
 const int idleStateColor[] = {0, 42, 255}; //Columbia Blue (about)
-const double idleStateMaxBrightness = 0.25; //Arbitrary
 double currentBrightnessConstant = 1.0; //0 to 1
-const double brightnessIncreasingMultiplicativeFactor = 1.1; //Determines the speed at which it gets brighter/dimmer
-const double minBrightnessConstant = 0.1;
+const double brightnessIncreasingMultiplicativeFactor = 1.01; //Determines the speed at which it gets brighter/dimmer
+const double minBrightnessConstant = 0.01;
 bool increasing;
 
 const int driveStateColor[] = {0, 42, 255}; //More or less Columbia Blue
@@ -111,26 +110,25 @@ void clearStrips() { //Basically turn off the strips by setting all the leds to 
 }
 
 void idleState(int dT) {
-  double actualConstant;
   int i, j;
   if(currentBrightnessConstant >= 1.0) {
     increasing = false;
   }
-  else if(currentBrightnessConstant <= 0.1) {
+  else if(currentBrightnessConstant <= minBrightnessConstant) {
     increasing = true;
   }
   if(increasing) {
-    actualConstant = brightnessIncreasingMultiplicativeFactor;
+    currentBrightnessConstant = currentBrightnessConstant*brightnessIncreasingMultiplicativeFactor;
   }
   else {
-    actualConstant = 1.0/brightnessIncreasingMultiplicativeFactor;
+    currentBrightnessConstant = currentBrightnessConstant/brightnessIncreasingMultiplicativeFactor;
   }
   for(j=0; j<3; ++j) {
     for(i=0; i<lNUMLEDS; ++i) {
-      lLED[i][j] *= actualConstant;
+      lLED[i][j] = idleStateColor[j]*currentBrightnessConstant;
     }
     for(i=0; i<rNUMLEDS; ++i) {
-      rLED[i][j] *= actualConstant;
+      rLED[i][j] = idleStateColor[j]*currentBrightnessConstant;
     }
   }
   updateLEDs();
