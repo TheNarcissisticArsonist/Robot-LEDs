@@ -2,4 +2,6 @@
 1 -- Low Voltage (0, 1, 2)
 2 -- Left Wheel Speed (0 to 255)
 3 -- Right Wheel Speed (0 to 255)
-4 -- Shooter Wheel Speed (0 to 255)
+4 -- Left Wheel Forward/Backward (0, 1, 2)    0 is backward, 1 is neutral, 2 is forward
+5 -- Right Wheel Forward/Backward (0, 1, 2)
+6 -- Shooter Wheel Speed (0 to 255)

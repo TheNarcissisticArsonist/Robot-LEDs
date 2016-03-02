@@ -35,12 +35,16 @@ const double lowVoltageBrightnessDrop = 5.0;
 
 const int idleStateColor[] = {0, 42, 255}; //Columbia Blue (about)
 double currentBrightnessConstant = 1.0; //0 to 1
-const double brightnessIncreasingMultiplicativeFactor = 1.01; //Determines the speed at which it gets brighter/dimmer
-const double minBrightnessConstant = 0.02;
+const double brightnessIncreasingMultiplicativeFactor = 1.008; //Determines the speed at which it gets brighter/dimmer
+const double minBrightnessConstant = 0.08;
 bool increasing;
 
 const int driveStateColor[] = {0, 42, 255}; //More or less Columbia Blue
 const int driveModeSpacing = 4; //Space between the lit LEDs during drive mode
+const double leftShiftConstant = 1;
+const double rightShiftConstant = 1;
+int leftShiftFactor = 0;
+int rightShiftFactor = 0;
 
 //2D arrays storing information about what the LED state is
 //Instead of messing with commands in library, just update this array
@@ -123,6 +127,8 @@ void idleState(int dT) {
   else {
     currentBrightnessConstant = currentBrightnessConstant/brightnessIncreasingMultiplicativeFactor;
   }
+  currentBrightnessConstant = currentBrightnessConstant > 1 ? 1 : currentBrightnessConstant;
+  currentBrightnessConstant = currentBrightnessConstant < 0 ? 0 : currentBrightnessConstant;
   for(j=0; j<3; ++j) {
     for(i=0; i<lNUMLEDS; ++i) {
       lLED[i][j] = idleStateColor[j]*currentBrightnessConstant;
@@ -133,7 +139,11 @@ void idleState(int dT) {
   }
   updateLEDs();
 }
-void driveState(int dT) {}
+void driveState(int dT) {
+  int i, j;
+  leftShiftFactor = (dataFromRoboRIO[4]-1)*(static_cast<int>(leftShiftConstant * dataFromRoboRIO[2]) % driveModeSpacing);
+  rightShiftFactor = (dataFromRoboRIO[5]-1)*(static_cast<int>(rightShiftConstant * dataFromRoboRIO[3]) % driveModeSpacing);
+}
 void shootingState(int dT) {}
 
 void decodeI2C(int numBytes) {
@@ -179,7 +189,7 @@ void loop() {
   else if(dataFromRoboRIO[0] != 1) {
     state = IDLE_STATE;
   }
-  else if(dataFromRoboRIO[4] > 10) {
+  else if(dataFromRoboRIO[6] > 10) {
     state = SHOOTING_STATE;
   }
   else {
