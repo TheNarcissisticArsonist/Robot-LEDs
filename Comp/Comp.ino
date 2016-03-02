@@ -22,8 +22,12 @@
 //I2C address
 #define I2C_ADDRESS 8
 
+//These are used for calculating dT
 long startTime;
 long currentTime;
+long lastTime;
+
+const int minTickTime = 10; //milliseconds. If dT is less than this, nothing happens
 
 //Used for low voltage problems with the robots
 bool lowVoltage = false;
@@ -125,6 +129,7 @@ void setup() {
 
   startTime = millis();
   currentTime = startTime;
+  lastTime = startTime;
 
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(decodeI2C);
@@ -137,13 +142,18 @@ void setup() {
 void loop() {
   //Declare variables
   int state;
+  int dT;
 
   //Deal with time stuff
-
+  currentTime = millis();
+  dT = currentTime - lastTime;
 
   //Read the state and set up stuff
   if(dataFromRoboRIO[0] != 1) {
     state = IDLE_STATE;
+  }
+  else if(dataFromRoboRIO[1] == 2) {
+    state = OFF_STATE;
   }
   else {
     if(dataFromRoboRIO[4] > 10) {
@@ -164,5 +174,7 @@ void loop() {
   }
 
   //Call the proper function(s)
-
+  if(dT > minTickTime) {
+    
+  }
 }
