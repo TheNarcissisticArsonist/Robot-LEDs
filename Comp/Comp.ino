@@ -2,7 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 
 //Include the I2C library
-#include <wire.h>
+#include <Wire.h>
 
 //Used throughout the program to reference the number of LEDS on the strand
 //This is completely modular -- any number works
@@ -19,13 +19,15 @@
 #define LEFT_LED_PIN 13
 #define RIGHT_LED_PIN 12
 
+//I2C address
+#define I2C_ADDRESS 8
+
 //Used for low voltage problems with the robots
 bool lowVoltage = false;
 const double lowVoltageBrightnessDrop = 5.0;
 
 const double idleStatePeriodLength = 2.0; //Period as in waves -- the time it takes one cycle to pass in seconds
 const int idleStateColor[] = {0, 42, 255}; //Columbia Blue (about)
-const int idleStateTick = 10; //In milliseconds
 const double idleStateMaxBrightness = 0.25; //Arbitrary
 
 const int driveStateColor[] = {0, 42, 255}; //More or less Columbia Blue
@@ -48,6 +50,12 @@ enum states {
 //Initialize the two Adafruit_NeoPixel objects, one for each side
 Adafruit_NeoPixel lStrip = Adafruit_NeoPixel(lNUMLEDS, LEFT_LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel rStrip = Adafruit_NeoPixel(rNUMLEDS, RIGHT_LED_PIN, NEO_GRB + NEO_KHZ800);
+
+//Number of bytes received from RoboRIO
+#define SIGNAL_LENGTH 10
+
+//Bytes from RoboRIO are stored here
+char dataFromRoboRIO[SIGNAL_LENGTH];
 
 void updateLEDs() { //This is a general purpose function to make everything easier. Instead of
                     //having to deal with the library's functions, I can do everything throughout
@@ -97,6 +105,14 @@ void driveState() {}
 void shooterOnState() {}
 void shooterOffState() {}
 
+void decodeI2C(int numBytes) {
+  int i = 0;
+  while(Wire.available() > 0) {
+    dataFromRoboRIO[i] = Wire.read();
+    ++i;
+  }
+}
+
 void setup() {
   lStrip.begin(); //Start the left and right led strips
   rStrip.begin();
@@ -104,6 +120,9 @@ void setup() {
 
   startTime = millis();
   currentTime = startTime;
+
+  Wire.begin(I2C_ADDRESS);
+  Wire.onReceive(decodeI2C);
 }
 
 void loop() {}
