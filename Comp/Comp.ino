@@ -156,8 +156,11 @@ void loop() {
       state = DRIVE_STATE;
     }
   }
-  if(dataFromRoboRIO[1] == 1) {
+  if(dataFromRoboRIO[1] > 0) {
     lowVoltage = true;
+  }
+  else {
+    lowVoltage = false;
   }
 
   //Call the proper function(s)
