@@ -1,6 +1,9 @@
 //Include the NeoPixel library
 #include <Adafruit_NeoPixel.h>
 
+//Include the I2C library
+#include <wire.h>
+
 //Used throughout the program to reference the number of LEDS on the strand
 //This is completely modular -- any number works
 #define lNUMLEDS 80
@@ -45,6 +48,77 @@ enum states {
 //Initialize the two Adafruit_NeoPixel objects, one for each side
 Adafruit_NeoPixel lStrip = Adafruit_NeoPixel(lNUMLEDS, LEFT_LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel rStrip = Adafruit_NeoPixel(rNUMLEDS, RIGHT_LED_PIN, NEO_GRB + NEO_KHZ800);
+
+void updateLEDs() { //This is a general purpose function to make everything easier. Instead of
+                    //having to deal with the library's functions, I can do everything throughout
+                    //the arrays I defined above, and then just update when necessary.
+  int i, j;
+  if(lowVoltage) { //If the robot battery has low voltage, drop the brightness to save power
+    for(i=0; i<lNUMLEDS; ++i) { //For each of the leds on the left side
+      for(j=0; j<3; ++j) {
+        lLED[i][j] = static_cast<int>(static_cast<double>(lLED[i][j])/lowVoltageBrightnessDrop); //The static_casts probably aren't necessary, but I want to make sure the types are correct
+      }
+      lStrip.setPixelColor(i, lLED[i][0], lLED[i][1], lLED[i][2]); //Update the left strand pixels
+    }
+    for(i=0; i<rNUMLEDS; ++i) { //For each of the leds on the right side
+      for(j=0; j<3; ++j) {
+        rLED[i][j] = static_cast<int>(static_cast<double>(rLED[i][j])/lowVoltageBrightnessDrop); //The static_casts probably aren't necessary, but I want to make sure the types are correct
+      }
+      rStrip.setPixelColor(i, rLED[i][0], rLED[i][1], rLED[i][2]); //Update the right strand pixels
+    }
+  }
+  else { //If voltage isn't low, FULL BRIGHTNESS :O
+    for(i=0; i<lNUMLEDS; ++i) {
+      lStrip.setPixelColor(i, lLED[i][0], lLED[i][1], lLED[i][2]);
+    }
+    for(i=0; i<rNUMLEDS; ++i) {
+      rStrip.setPixelColor(i, rLED[i][0], rLED[i][1], rLED[i][2]);
+    }
+  }
+  lStrip.show();
+  rStrip.show();
+}
+
+void clearStrips() { //Basically turn off the strips by setting all the leds to RGB [0, 0, 0]
+  int i, j;
+  for(j=0; j<3; ++j) { //For the R value, then the G value, then the B value
+    for(i=0; i<lNUMLEDS; ++i) { //For all leds on the left
+      lLED[i][j] = 0;
+    }
+    for(i=0; i<rNUMLEDS; ++i) { //For all leds on the right
+      rLED[i][j] = 0;
+    }
+  } //Ordering it like this should make it slightly faster, which doesn't hurt anything
+  updateLEDs();
+}
+
+void idleState(int timeSinceLastAction) {
+  if(timeSinceLastAction<idleStateTick) { //Only update this every so often
+    return;
+  }
+  int i, j;
+  double brightnessConstant = ((static_cast<double>(currentTime-periodStart)/1000.0)-1>0) ? (static_cast<double>(currentTime-periodStart)/1000.0)-1 : 1-(static_cast<double>(currentTime-periodStart)/1000.0);
+  if(brightnessConstant > 1) {
+    brightnessConstant = 1;
+  }
+  else if(brightnessConstant < 0) {
+    brightnessConstant = 0;
+  }
+  for(j=0; j<3; ++j) {
+    for(i=0; i<lNUMLEDS; ++i) {
+      lLED[i][j] = static_cast<int>(static_cast<double>(idleStateColor[j]*brightnessConstant*idleStateMaxBrightness));
+    }
+    for(i=0; i<rNUMLEDS; ++i) {
+      rLED[i][j] = static_cast<int>(static_cast<double>(idleStateColor[j]*brightnessConstant*idleStateMaxBrightness));
+    }
+  }
+  if(currentTime-periodStart >= idleStatePeriodLength*1000) {
+    periodStart += idleStatePeriodLength*1000;
+  }
+}
+void driveState() {}
+void shooterOnState() {}
+void shooterOffState() {}
 
 void setup() {}
 
